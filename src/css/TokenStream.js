@@ -1,5 +1,4 @@
 
-
 var h = /^[0-9a-fA-F]$/,
     nonascii = /^[\u0080-\uFFFF]$/,
     nl = /\n|\r\n|\r|\f/;
@@ -10,40 +9,40 @@ var h = /^[0-9a-fA-F]$/,
 
 
 function isHexDigit(c){
-    return c != null && h.test(c);
+    return c !== null && h.test(c);
 }
 
 function isDigit(c){
-    return c != null && /\d/.test(c);
+    return c !== null && /\d/.test(c);
 }
 
 function isWhitespace(c){
-    return c != null && /\s/.test(c);
+    return c !== null && /\s/.test(c);
 }
 
 function isNewLine(c){
-    return c != null && nl.test(c);
+    return c !== null && nl.test(c);
 }
 
 function isNameStart(c){
-    return c != null && (/[a-z_\u0080-\uFFFF\\]/i.test(c));
+    return c !== null && (/[a-z_\u0080-\uFFFF\\]/i.test(c));
 }
 
 function isNameChar(c){
-    return c != null && (isNameStart(c) || /[0-9\-\\]/.test(c));
+    return c !== null && (isNameStart(c) || /[0-9\-\\]/.test(c));
 }
 
 function isIdentStart(c){
-    return c != null && (isNameStart(c) || /\-\\/.test(c));
+    return c !== null && (isNameStart(c) || /\-\\/.test(c));
 }
 
 function mix(receiver, supplier){
-	for (var prop in supplier){
-		if (supplier.hasOwnProperty(prop)){
-			receiver[prop] = supplier[prop];
-		}
-	}
-	return receiver;
+    for (var prop in supplier){
+        if (supplier.hasOwnProperty(prop)){
+            receiver[prop] = supplier[prop];
+        }
+    }
+    return receiver;
 }
 
 //-----------------------------------------------------------------------------
@@ -59,7 +58,7 @@ function mix(receiver, supplier){
  * @namespace parserlib.css
  */
 function TokenStream(input){
-	TokenStreamBase.call(this, input, Tokens);
+    TokenStreamBase.call(this, input, Tokens);
 }
 
 TokenStream.prototype = mix(new TokenStreamBase(), {
@@ -95,7 +94,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
                  */
                 case "/":
 
-                    if(reader.peek() == "*"){
+                    if(reader.peek() === "*"){
                         token = this.commentToken(c, startLine, startCol);
                     } else {
                         token = this.charToken(c, startLine, startCol);
@@ -116,7 +115,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
                 case "^":
                 case "$":
                 case "*":
-                    if(reader.peek() == "="){
+                    if(reader.peek() === "="){
                         token = this.comparisonToken(c, startLine, startCol);
                     } else {
                         token = this.charToken(c, startLine, startCol);
@@ -170,7 +169,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
                  * - PERCENTAGE
                  */
                 case "-":
-                    if (reader.peek() == "-"){  //could be closing HTML-style comment
+                    if (reader.peek() === "-"){  //could be closing HTML-style comment
                         token = this.htmlCommentEndToken(c, startLine, startCol);
                     } else if (isNameStart(reader.peek())){
                         token = this.identOrFunctionToken(c, startLine, startCol);
@@ -221,7 +220,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
                  */
                 case "U":
                 case "u":
-                    if (reader.peek() == "+"){
+                    if (reader.peek() === "+"){
                         token = this.unicodeRangeToken(c, startLine, startCol);
                         break;
                     }
@@ -283,7 +282,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
             c = reader.read();
         }
 
-        if (!token && c == null){
+        if (!token && c === null){
             token = this.createToken(Tokens.EOF,null,startLine,startCol);
         }
 
@@ -361,7 +360,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
         tt = Tokens.type(rule.toLowerCase());
 
         //if it's not valid, use the first character only and reset the reader
-        if (tt == Tokens.CHAR || tt == Tokens.UNKNOWN){
+        if (tt === Tokens.CHAR || tt === Tokens.UNKNOWN){
             tt = Tokens.CHAR;
             rule = first;
             reader.reset();
@@ -383,7 +382,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
     charToken: function(c, startLine, startCol){
         var tt = Tokens.type(c);
 
-        if (tt == -1){
+        if (tt === -1){
             tt = Tokens.CHAR;
         }
 
@@ -459,7 +458,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
         reader.mark();
         text += reader.readCount(3);
 
-        if (text == "<!--"){
+        if (text === "<!--"){
             return this.createToken(Tokens.CDO, text, startLine, startCol);
         } else {
             reader.reset();
@@ -484,7 +483,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
         reader.mark();
         text += reader.readCount(2);
 
-        if (text == "-->"){
+        if (text === "-->"){
             return this.createToken(Tokens.CDC, text, startLine, startCol);
         } else {
             reader.reset();
@@ -508,23 +507,23 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
             tt      = Tokens.IDENT;
 
         //if there's a left paren immediately after, it's a URI or function
-        if (reader.peek() == "("){
+        if (reader.peek() === "("){
             ident += reader.read();
-            if (ident.toLowerCase() == "url("){
+            if (ident.toLowerCase() === "url("){
                 tt = Tokens.URI;
                 ident = this.readURI(ident);
 
                 //didn't find a valid URL or there's no closing paren
-                if (ident.toLowerCase() == "url("){
+                if (ident.toLowerCase() === "url("){
                     tt = Tokens.FUNCTION;
                 }
             } else {
                 tt = Tokens.FUNCTION;
             }
-        } else if (reader.peek() == ":"){  //might be an IE function
+        } else if (reader.peek() === ":"){  //might be an IE function
 
             //IE-specific functions always being with progid:
-            if (ident.toLowerCase() == "progid"){
+            if (ident.toLowerCase() === "progid"){
                 ident += reader.readTo("(");
                 tt = Tokens.IE_FUNCTION;
             }
@@ -556,14 +555,14 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
         while(c){
 
             //there can be a comment in here
-            if (c == "/"){
+            if (c === "/"){
 
                 //if the next character isn't a star, then this isn't a valid !important token
-                if (reader.peek() != "*"){
+                if (reader.peek() !== "*"){
                     break;
                 } else {
                     temp = this.readComment(c);
-                    if (temp == ""){    //broken!
+                    if (temp === ""){    //broken!
                         break;
                     }
                 }
@@ -584,7 +583,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
             c = reader.read();
         }
 
-        if (tt == Tokens.CHAR){
+        if (tt === Tokens.CHAR){
             reader.reset();
             return this.charToken(first, startLine, startCol);
         } else {
@@ -611,7 +610,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
         reader.mark();
         text += reader.readCount(4);
 
-        if (text.toLowerCase() == ":not("){
+        if (text.toLowerCase() === ":not("){
             return this.createToken(Tokens.NOT, text, startLine, startCol);
         } else {
             reader.reset();
@@ -655,7 +654,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
                 tt = Tokens.DIMENSION;
             }
 
-        } else if (c == "%"){
+        } else if (c === "%"){
             value += reader.read();
             tt = Tokens.PERCENTAGE;
         }
@@ -688,12 +687,12 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
             string += c;
 
             //if the delimiter is found with an escapement, we're done.
-            if (c == delim && prev != "\\"){
+            if (c === delim && prev !== "\\"){
                 break;
             }
 
             //if there's a newline without an escapement, it's an invalid string
-            if (isNewLine(reader.peek()) && c != "\\"){
+            if (isNewLine(reader.peek()) && c !== "\\"){
                 tt = Tokens.INVALID;
                 break;
             }
@@ -704,7 +703,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
         }
 
         //if c is null, that means we're out of input and the string was never closed
-        if (c == null){
+        if (c === null){
             tt = Tokens.INVALID;
         }
 
@@ -718,28 +717,28 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
             tt      = Tokens.CHAR;
 
         //then it should be a unicode range
-        if (reader.peek() == "+"){
+        if (reader.peek() === "+"){
             reader.mark();
             value += reader.read();
             value += this.readUnicodeRangePart(true);
 
             //ensure there's an actual unicode range here
-            if (value.length == 2){
+            if (value.length === 2){
                 reader.reset();
             } else {
 
                 tt = Tokens.UNICODE_RANGE;
 
                 //if there's a ? in the first part, there can't be a second part
-                if (value.indexOf("?") == -1){
+                if (value.indexOf("?") === -1){
 
-                    if (reader.peek() == "-"){
+                    if (reader.peek() === "-"){
                         reader.mark();
                         temp = reader.read();
                         temp += this.readUnicodeRangePart(false);
 
                         //if there's not another value, back up and just take the first
-                        if (temp.length == 1){
+                        if (temp.length === 1){
                             reader.reset();
                         } else {
                             value += temp;
@@ -790,7 +789,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
 
         //then read question marks if allowed
         if (allowQuestionMark){
-            while(c == "?" && part.length < 6){
+            while(c === "?" && part.length < 6){
                 reader.read();
                 part += c;
                 c = reader.peek();
@@ -818,14 +817,14 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
     readNumber: function(first){
         var reader  = this._reader,
             number  = first,
-            hasDot  = (first == "."),
+            hasDot  = (first === "."),
             c       = reader.peek();
 
 
         while(c){
             if (isDigit(c)){
                 number += reader.read();
-            } else if (c == "."){
+            } else if (c === "."){
                 if (hasDot){
                     break;
                 } else {
@@ -853,12 +852,12 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
             string += c;
 
             //if the delimiter is found with an escapement, we're done.
-            if (c == delim && prev != "\\"){
+            if (c === delim && prev !== "\\"){
                 break;
             }
 
             //if there's a newline without an escapement, it's an invalid string
-            if (isNewLine(reader.peek()) && c != "\\"){
+            if (isNewLine(reader.peek()) && c !== "\\"){
                 string = "";
                 break;
             }
@@ -869,7 +868,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
         }
 
         //if c is null, that means we're out of input and the string was never closed
-        if (c == null){
+        if (c === null){
             string = "";
         }
 
@@ -890,7 +889,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
         }
 
         //it's a string
-        if (c == "'" || c == "\""){
+        if (c === "'" || c === "\""){
             inner = this.readString();
         } else {
             inner = this.readURL();
@@ -905,7 +904,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
         }
 
         //if there was no inner value or the next character isn't closing paren, it's not a URI
-        if (inner == "" || c != ")"){
+        if (inner === "" || c !== ")"){
             uri = first;
             reader.reset();
         } else {
@@ -934,7 +933,7 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
             c       = reader.peek();
 
         while(true){
-            if (c == "\\"){
+            if (c === "\\"){
                 ident += this.readEscape(reader.read());
                 c = reader.peek();
             } else if(c && isNameChar(c)){
@@ -947,41 +946,41 @@ TokenStream.prototype = mix(new TokenStreamBase(), {
 
         return ident;
     },
-    
+
     readEscape: function(first){
         var reader  = this._reader,
             cssEscape = first || "",
             i       = 0,
-            c       = reader.peek();    
-    
+            c       = reader.peek();
+
         if (isHexDigit(c)){
             do {
                 cssEscape += reader.read();
                 c = reader.peek();
             } while(c && isHexDigit(c) && ++i < 6);
         }
-        
-        if (cssEscape.length == 3 && /\s/.test(c) ||
-            cssEscape.length == 7 || cssEscape.length == 1){
+
+        if (cssEscape.length === 3 && /\s/.test(c) ||
+            cssEscape.length === 7 || cssEscape.length === 1){
                 reader.read();
         } else {
             c = "";
         }
-        
+
         return cssEscape + c;
     },
-    
+
     readComment: function(first){
         var reader  = this._reader,
             comment = first || "",
             c       = reader.read();
 
-        if (c == "*"){
+        if (c === "*"){
             while(c){
                 comment += c;
 
                 //look for end of comment
-                if (c == "*" && reader.peek() == "/"){
+                if (c === "*" && reader.peek() === "/"){
                     comment += reader.read();
                     break;
                 }

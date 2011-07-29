@@ -13,7 +13,7 @@ function EventTarget(){
      * @property _listeners
      * @private
      */
-    this._listeners = {};    
+    this._listeners = {};
 }
 
 EventTarget.prototype = {
@@ -35,34 +35,34 @@ EventTarget.prototype = {
 
         this._listeners[type].push(listener);
     },
-    
+
     /**
      * Fires an event based on the passed-in object.
      * @param {Object|String} event An object with at least a 'type' attribute
      *      or a string indicating the event name.
      * @return {void}
      * @method fire
-     */    
+     */
     fire: function(event){
-        if (typeof event == "string"){
+        if (typeof event === "string"){
             event = { type: event };
         }
         if (!event.target){
             event.target = this;
         }
-        
+
         if (!event.type){
             throw new Error("Event object missing 'type' property.");
         }
-        
+
         if (this._listeners[event.type]){
-        
+
             //create a copy of the array and use that so listeners can't chane
             var listeners = this._listeners[event.type].concat();
             for (var i=0, len=listeners.length; i < len; i++){
                 listeners[i].call(this, event);
             }
-        }            
+        }
     },
 
     /**
@@ -81,8 +81,8 @@ EventTarget.prototype = {
                     break;
                 }
             }
-            
-            
-        }            
+
+
+        }
     }
 };
