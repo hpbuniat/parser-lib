@@ -1444,7 +1444,7 @@ Parser.prototype = function(){
 
                 var tokenStream = this._tokenStream,
                     values      = [],
-					//valueParts	= [],
+                    //valueParts    = [],
                     value       = null,
                     operator    = null;
 
@@ -1461,9 +1461,9 @@ Parser.prototype = function(){
                             values.push(operator);
                         } /*else {
                             //if there's not an operator, you have a full value
-							values.push(new PropertyValue(valueParts, valueParts[0].line, valueParts[0].col));
-							valueParts = [];
-						}*/
+                            values.push(new PropertyValue(valueParts, valueParts[0].line, valueParts[0].col));
+                            valueParts = [];
+                        }*/
 
                         value = this._term();
 
@@ -1475,7 +1475,7 @@ Parser.prototype = function(){
                     } while(true);
                 }
 
-				//cleanup
+                //cleanup
                 /*if (valueParts.length){
                     values.push(new PropertyValue(valueParts, valueParts[0].line, valueParts[0].col));
                 }*/
